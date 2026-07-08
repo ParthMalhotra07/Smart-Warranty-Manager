@@ -34,6 +34,12 @@ exports.register = async (req, res, next) => {
       role
     });
 
+    sendEmail({
+      email: user.email,
+      subject: 'Welcome to Smart Warranty Manager!',
+      message: `Hi ${user.name},\n\nWelcome to Smart Warranty Manager! Your account has been successfully created.\n\nYou can now start adding your appliances and tracking your warranties securely.`
+    }).catch(err => console.error('Failed to send welcome email:', err));
+
     sendTokenResponse(user, 201, res);
   } catch (err) {
     next(err);
