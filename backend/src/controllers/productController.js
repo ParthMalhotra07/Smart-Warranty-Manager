@@ -1,5 +1,6 @@
 const Product = require('../models/Product');
 const ErrorResponse = require('../utils/errorResponse');
+const sendEmail = require('../utils/sendEmail');
 
 exports.getProducts = async (req, res, next) => {
   try {
@@ -26,6 +27,31 @@ exports.createProduct = async (req, res, next) => {
   try {
     req.body.user = req.user.id;
     const product = await Product.create(req.body);
+
+    try {
+      // Instant confirmation email
+      await sendEmail({
+        email: req.user.email,
+        subject: `Product Added: ${product.name}`,
+        message: `Success! Your ${product.brand ? product.brand + ' ' : ''}${product.name} has been secured in your vault.`
+      });
+      
+      // Instant expiry check
+      if (product.warrantyExpiry) {
+        const today = new Date();
+        const diffDays = Math.ceil((new Date(product.warrantyExpiry) - today) / (1000 * 60 * 60 * 24));
+        if (diffDays <= 30 && diffDays >= 0) {
+          await sendEmail({
+            email: req.user.email,
+            subject: `Warranty Expiry Alert: ${product.name}`,
+            message: `Alert: Your ${product.brand ? product.brand + ' ' : ''}${product.name} warranty expires in ${diffDays} days on ${new Date(product.warrantyExpiry).toLocaleDateString()}.`
+          });
+        }
+      }
+    } catch (emailErr) {
+      console.error('Failed to send instant email:', emailErr);
+    }
+
     res.status(201).json({ success: true, data: product });
   } catch (err) {
     next(err);
@@ -47,6 +73,23 @@ exports.updateProduct = async (req, res, next) => {
       new: true,
       runValidators: true
     });
+
+    try {
+      // Instant expiry check on update
+      if (product.warrantyExpiry) {
+        const today = new Date();
+        const diffDays = Math.ceil((new Date(product.warrantyExpiry) - today) / (1000 * 60 * 60 * 24));
+        if (diffDays <= 30 && diffDays >= 0) {
+          await sendEmail({
+            email: req.user.email,
+            subject: `Warranty Expiry Alert: ${product.name}`,
+            message: `Alert: Your ${product.brand ? product.brand + ' ' : ''}${product.name} warranty expires in ${diffDays} days on ${new Date(product.warrantyExpiry).toLocaleDateString()}.`
+          });
+        }
+      }
+    } catch (emailErr) {
+      console.error('Failed to send instant email:', emailErr);
+    }
 
     res.status(200).json({ success: true, data: product });
   } catch (err) {
