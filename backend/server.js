@@ -15,6 +15,7 @@ const services = require('./src/routes/serviceRecordRoutes');
 const uploads = require('./src/routes/uploadRoutes');
 const ocr = require('./src/routes/ocrRoutes');
 const admin = require('./src/routes/adminRoutes');
+const notifications = require('./src/routes/notificationRoutes');
 const app = express();
 
 // Middleware
@@ -37,6 +38,7 @@ app.use('/api/v1/services', services);
 app.use('/api/v1/uploads', uploads);
 app.use('/api/v1/ocr', ocr);
 app.use('/api/v1/admin', admin);
+app.use('/api/v1/notifications', notifications);
 
 // Error Handler Middleware
 app.use(errorHandler);
