@@ -16,7 +16,7 @@ exports.getNotifications = async (req, res, next) => {
             title: 'Warranty Expiring Soon',
             message: `${p.brand || 'Your'} ${p.name} warranty expires in ${diffDays} days.`,
             type: 'warranty',
-            date: 'Just now',
+            date: 'Today',
             isRead: false
           });
         } else if (diffDays < 0) {
@@ -39,7 +39,7 @@ exports.getNotifications = async (req, res, next) => {
             title: 'Upcoming Service',
             message: `${p.brand || 'Your'} ${p.name} is due for service in ${diffDays} days.`,
             type: 'service',
-            date: 'Just now',
+            date: 'Today',
             isRead: false
           });
         } else if (diffDays < 0) {
